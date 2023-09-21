@@ -1,11 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/nav_bar.css' %}"
+    />
     <title>Main</title>
-</head>
-<body>
-    
-</body>
+  </head>
+  <body>
+    {% include 'nav_bar.html' %}
+  </body>
 </html>
