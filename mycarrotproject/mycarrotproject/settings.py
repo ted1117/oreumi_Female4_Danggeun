@@ -39,6 +39,8 @@ def get_secret(setting, secrets=secrets):
         raise ImproperlyConfigured(error_msg)
     
 SECRET_KEY = get_secret("SECRET_KEY")
+DB_USER = get_secret("DB_USER")
+DB_NAME = get_secret("DB_NAME")
 DB_PWD = get_secret("DB_PWD")
 DB_HOST = get_secret("DB_HOST")
 DB_PORT = get_secret("DB_PORT")
@@ -97,10 +99,21 @@ WSGI_APPLICATION = 'mycarrotproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        "PASSWORD": DB_PWD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
