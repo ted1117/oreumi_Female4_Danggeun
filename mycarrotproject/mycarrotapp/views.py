@@ -62,3 +62,13 @@ def create_or_update_post(request, post_id=None):
     context = {'form': form, 'post': post, 'edit_mode': post_id is not None, 'MEDIA_URL': settings.MEDIA_URL,} #edit_mode: 글 수정 모드여부
 
     return render(request, template, context)
+
+def chat(request):
+    return render(request, "chat/chat.html")
+
+def room(request, room_name):
+    context = {
+        "room_name": room_name,
+    }
+    return render(request, "chat/room.html", context)
+
