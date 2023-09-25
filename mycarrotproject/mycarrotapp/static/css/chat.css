@@ -1,7 +1,7 @@
 body {
     margin: 0;
     background: #fffae0;
-    height: 100vh;
+    height: calc(100vh - 60px);
     box-sizing: border-box;
 }
 
@@ -15,8 +15,9 @@ a {
 
 .container {
     width: 100%;
-    height: calc(-60px + 100%);
+    height: 100%;
     font-family: Noto Sans KR;
+    margin-top: 60px;
 }
 
 #room-name-input,
@@ -246,11 +247,14 @@ a {
     line-height: normal;
 }
 
+.chat-box {
+    height: calc(100% - 157px);
+}
+
 .message-box {
-    overflow: hidden auto;
+    overflow-y: auto;
     padding: 0px 20px;
-    /* 임시 높이 */
-    /* min-height: 785px; */
+    height: calc(100% - 111px);
 }
 
 .message-layer {
