@@ -8,9 +8,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}" />
     <title>Chat</title>
   </head>
+
   <body>
     {% include 'nav_bar.html' %}
-    <main class="container">
+    <div class="container">
       <div class="chat-container">
         <nav class="chat-list-container">
           <div class="my-id">
@@ -61,14 +62,15 @@
           </ul>
         </nav>
         <main class="chat-main-container">
+          {% block content%}
           <div class="empty-box">
-            <img src="{% static 'img/chat.svg' %}" alt="">
+            <img src="{% static 'img/chat.svg' %}" alt="" />
             <div class="empty-description">채팅할 상대를 선택하세요.</div>
           </div>
-          {% block content%} {% endblock %}
+          {% endblock %}
         </main>
       </div>
-    </main>
+    </div>
 
     <input id="room-name-input" type="text" size="100" />
     <input id="room-name-submit" type="button" value="Enter" />

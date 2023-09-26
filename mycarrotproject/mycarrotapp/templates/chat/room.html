@@ -1,231 +1,133 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/nav_bar.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}"/>
-    <title>Chat</title>
-  </head>
-
-  <body>
-    {% include 'nav_bar.html' %}
-    <main class="container">
-      <div class="chat-container">
-        <nav class="chat-list-container">
-          <div class="my-id">
-            <div class="nickname-area">내 아이디</div>
-            <label class="unread-messages">
-              <span class="unread-description">안 읽은 메시지만 보기</span>
-              <input type="checkbox" name="" class="checkbox"/>
-            </label>
-          </div>
-          <div class="chatbot-box">AI 봇</div>
-          <ul class="chat-list-box">
-            <li class="chat-room">
-              <a class="chat-room-link" href="">
-                <div class="chat-preview-box">
-                  <div class="preview-title">
-                    <span class="preview-nickname">상대방아이디</span>
-                    <div class="preview-text">
-                      <span>여의도동</span>
-                      <span>
-                        ·
-                      </span>
-                      <span>1년 전</span>
-                    </div>
-                  </div>
-                  <div class="preview-description">
-                    <span class="description-text">거래 잘 하셨나요? ㅋ</span>
-                  </div>
-                </div>
-                <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="거래 품목 썸네일"/>
-              </a>
-            </li>
-            <li class="chat-room">
-              <a class="chat-room-link" href="">
-                <div class="chat-preview-box">
-                  <div class="preview-title">
-                    <span class="preview-nickname">상대방아이디</span>
-                    <div class="preview-text">
-                      <span>여의도동</span>
-                      <span>
-                        ·
-                      </span>
-                      <span>1년 전</span>
-                    </div>
-                  </div>
-                  <div class="preview-description">
-                    <span class="description-text">거래 잘 하셨나요? ㅋ</span>
-                  </div>
-                </div>
-                <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="거래 품목 썸네일"/>
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <main class="chat-main-container">
-          <div class="chat-box">
-            <div class="partner-id-box">
-              <span class="partner-nickname">상대방아이디</span>
-              <span class="partner-temperature">36.9°C</span>
-            </div>
-            <a class="product-info-box" href="#">
-              <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="상품 썸네일"/>
-              <div class="product-info">
-                <div class="product-name">LG 양문형 냉장고 779L</div>
-                <div class="product-price">150,000원</div>
-              </div>
-              <span class="product-status">거래완료</span>
-            </a>
-            <div class="message-box">
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer right">
-                <div class="message right">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">
-                    동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세
-                  </p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer right">
-                <div class="message right">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">
-                    동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세
-                  </p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer right">
-                <div class="message right">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">
-                    동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세
-                  </p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer right">
-                <div class="message right">
-                  <p class="message-content">Holy shit</p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-              <div class="message-layer left">
-                <div class="message left">
-                  <p class="message-content">
-                    동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세
-                  </p>
-                </div>
-                <div class="message-time-box">
-                  <div class="message-time">오전 10:32</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <form class="message-input-box" action="">
-            {% csrf_token %}
-            <textarea class="message-input" placeholder="메시지를 입력하세요"></textarea>
-            <div class="message-send-box">
-              <button class="message-send-button">전송</button>
-            </div>
-          </form>
-        </main>
+{% extends "chat/chat.html" %} {% load static %} {% block content %} {% if room_name %}
+<div class="chat-box">
+  <div class="partner-id-box">
+    <span class="partner-nickname">상대방아이디</span>
+    <span class="partner-temperature">36.9°C</span>
+  </div>
+  <a class="product-info-box" href="#">
+    <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="상품 썸네일" />
+    <div class="product-info">
+      <div class="product-name">LG 양문형 냉장고 779L</div>
+      <div class="product-price">150,000원</div>
+    </div>
+    <span class="product-status">거래완료</span>
+  </a>
+  <div class="message-box">
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">Holy shit</p>
       </div>
-    </main>
-
-    <input id="room-name-input" type="text" size="100"/>
-    <input id="room-name-submit" type="button" value="Enter"/>
-
-    <script>
-      document
-        .querySelector("#room-name-input")
-        .focus();
-      document
-        .querySelector("#room-name-input")
-        .onkeyup = function (e) {
-          if (e.key === "Enter") {
-            // enter, return
-            document
-              .querySelector("#room-name-submit")
-              .click();
-          }
-        };
-
-      document
-        .querySelector("#room-name-submit")
-        .onclick = function (e) {
-          var roomName = document
-            .querySelector("#room-name-input")
-            .value;
-          window.location.pathname = "/chat/" + roomName + "/";
-          //window.location.pathname = roomName + "/";
-        };
-    </script>
-  </body>
-
-</html>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer right">
+      <div class="message right">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">
+          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
+          보전하세
+        </p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer right">
+      <div class="message right">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">
+          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
+          보전하세
+        </p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer right">
+      <div class="message right">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">
+          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
+          보전하세
+        </p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer right">
+      <div class="message right">
+        <p class="message-content">Holy shit</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+    <div class="message-layer left">
+      <div class="message left">
+        <p class="message-content">
+          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
+          보전하세
+        </p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">오전 10:32</div>
+      </div>
+    </div>
+  </div>
+</div>
+<form class="message-input-box" action="">
+  {% csrf_token %}
+  <textarea class="message-input" placeholder="메시지를 입력하세요"></textarea>
+  <div class="message-send-box">
+    <button class="message-send-button">전송</button>
+  </div>
+</form>
+{% endif %} {% endblock %}

@@ -46,7 +46,6 @@
 .nav-menu {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     gap: 31px;
 
     width: 100%;
@@ -80,7 +79,6 @@
     width: 98px;
     height: 39px;
     border-radius: 6px;
-    padding: 7px 17px;
     box-sizing: border-box;
 
     font-family: Noto Sans KR;

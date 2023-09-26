@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
-from .models import Post, UserProfile
+from .models import Post, UserInfo
 from django.conf import settings
 
 # Create your views here.
@@ -33,8 +33,8 @@ def trade_post(request, pk):
         post.save()
 
     try:
-        user_profile = UserProfile.objects.get(user=post.user)
-    except UserProfile.DoesNotExist:
+        user_profile = UserInfo.objects.get(user=post.user)
+    except UserInfo.DoesNotExist:
             user_profile = None
 
     context = {
