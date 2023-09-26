@@ -1,19 +1,18 @@
-<!-- {% load static %}{% load humanize %}
+{% load static %}{% load humanize %}
+{% comment %} humanize : 시간이나 숫자값을 읽기 좋게 출력하기 위해 사용 (settings.py에 추가) {% endcomment %}
 <!DOCTYPE html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nav_bar.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/nav_bar.css' %}"
-    />
     <title>Main</title>
   </head>
   <body>
-    {% include 'nav_bar.html' %}
+    {% comment %} {% include 'dangun_app/nav.html' %} {% endcomment %}
+
     <div class="content-box section1">
       <div class="container between flex-box">
         <div class="main-box flex-box column">
@@ -35,7 +34,8 @@
         <div class="description-box">
           <h1>우리 동네<br>중고 직거래 마켓</h1>
           <p>동네 주민들과 가깝고 따뜻한 거래를 지금 경험해보세요</p>
-          <a href="{% url 'dangun_app:trade' %}">
+          <a href="#">
+          <a href="#">
             <button class="button-gray">인기매물 보기</button>
           </a>
         </div>
@@ -84,36 +84,35 @@
       <h1>중고거래 인기매물</h1>
       <div class="full-box trade-box">
         <div class="flex-box full-box card-container between">
-          {% for post in posts %}
+          {% comment %} {% for post in posts %} {% endcomment %}
 
             <div class="card-box">
-              <a href="{% url 'dangun_app:trade_post' post.pk %}" class="trade-text-link">
+              <a href="#" class="trade-text-link">
                 <div class="card-img">
-                  {% if post.images %}
-                    <img src="{{ post.images.url }}" alt="{{ post.title }}">
-                  {% endif %}
+                    <img src="" alt="">
                 </div>
                 <div class="card-info-box">
-                  <h5>{{ post.title }}</h5>
-                  <p class="bold">{{ post.price |intcomma}}원</p>
-                  <p>{{ post.location }}</p>
+                  <h5>위닉스 제습기기</h5>
+                  <p class="bold">100000원</p>
+                  <p>인천 부평구 부평동</p>
                   <div class="flex-box">
-                    <p>조회
-                      {{ post.view_num }}</p>
+                    <p>조회 15</p>
                     <p>·</p>
-                    <p>채팅
-                      {{ post.chat_num }}</p>
+                    <p>채팅 41</p>
                   </div>
                 </div>
               </a>
             </div>
-          {% endfor %}
+          {% comment %} {% endfor %} {% endcomment %}
 
         </div>
-        <a href="/trade">인기매물 더 보기</a>
+        {% comment %} <a href="/trade">인기매물 더 보기</a> {% endcomment %}
+        <a href="#">인기매물 더 보기</a>
       </div>
     </div>
   </div>
-  </body>
+  {% comment %} {% include 'footer.html' %} {% endcomment %}
+
+</body>
+
 </html>
--->
