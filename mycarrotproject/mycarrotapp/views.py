@@ -1,7 +1,9 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CustomLoginForm, CustomRegistrationForm
-from .models import DanggeunPost
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
+from .models import Post, UserProfile
 from django.conf import settings
 
 # Create your views here.
@@ -10,62 +12,55 @@ from django.conf import settings
 def main(request):
     return render(request, "main.html")
 
-def trade_list(request, category=None):
-    if category:
-        trades = DanggeunPost.objects.filter(category=category, publish='Y').order_by('-views')
 
-    else:
-        trades = DanggeunPost.objects.filter(publish='Y').order_by('-views')
-    return render(request, 'trade_list.html', {'trades': trades})
+# 중고거래 화면
+def trade(request):
+    top_views_posts = Post.objects.filter(product_sold='N').order_by('-view_num')
+    return render(request, 'mycarrotapp/trade.html', {'posts': top_views_posts})
 
-def trade_post(request):
-    return render(request, 'trade_post.html')
+# 중고거래상세정보(각 포스트) 화면
+def trade_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
 
-
-# 포스트 업로드, 업데이트, 삭제
-def create_or_update_post(request, post_id=None):
-    # 글수정 페이지의 경우
-    if post_id:
-        post = get_object_or_404(DanggeunPost, id=post_id)
     
-    # 글쓰기 페이지의 경우, 임시저장한 글이 있는지 검색 
-    else:
-        post = DanggeunPost.objects.filter(author_id=request.user.username, publish='N').order_by('-created_at').first()
-
-    # 업로드/수정 버튼 눌렀을 떄
-    if request.method == 'POST':
-        form = DanggeunPost(request.POST, instance=post) # 폼 초기화
-        if form.is_valid():
-            post = form.save(commit=False)
-
-            # 게시물 삭제
-            if 'delete-button' in request.POST:
-                post.delete() 
-                return redirect('trade_list.html') 
-
-            if not form.cleaned_data.get('category'):
-                post.topic = '전체'
-            
-            # 임시저장 여부 설정
-            if 'temp-save-button' in request.POST:
-                post.publish = 'N'
-            else:
-                post.publish = 'Y'
-
-            # 글쓴이 설정
-            post.author_id = request.user.username
-
+    # 조회수 증가
+    if request.user.is_authenticated:
+        if request.user != post.user:
+            post.view_num += 1
             post.save()
-            return redirect('trade_post.html', post_id=post.id) # 업로드/수정한 페이지로 리다이렉트
-    
-    # 수정할 게시물 정보를 가지고 있는 객체를 사용해 폼을 초기화함
     else:
-        form = DanggeunPost(instance=post)
+        post.view_num += 1
+        post.save()
 
-    template = 'write.html'
-    context = {'form': form, 'post': post, 'edit_mode': post_id is not None, 'MEDIA_URL': settings.MEDIA_URL,} #edit_mode: 글 수정 모드여부
+    try:
+        user_profile = UserProfile.objects.get(user=post.user)
+    except UserProfile.DoesNotExist:
+            user_profile = None
 
-    return render(request, template, context)
+    context = {
+        'post': post,
+        'user_profile': user_profile,
+    }
+
+    return render(request, 'dangun_app/trade_post.html', context)
+
+def write(request):
+    return render(request, 'mycarrotapp/write.html')
+
+# 포스트 업로드
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)  # 임시 저장
+            post.user = request.user  # 작성자 정보 추가 (이 부분을 수정했습니다)
+            post.save()  # 최종 저장
+            return redirect('mycarrotapp:trade_post', pk=post.pk)  # 저장 후 상세 페이지로 이동
+    else:
+        form = PostForm()
+    return render(request, 'mycarrotapp/trade_post.html', {'form': form})
+
 
 def chat(request):
     return render(request, "chat/chat.html")
