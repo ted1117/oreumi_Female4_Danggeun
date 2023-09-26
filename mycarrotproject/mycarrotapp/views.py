@@ -1,8 +1,12 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
+from .forms import CustomLoginForm, CustomRegistrationForm
 from .models import DanggeunPost
 from django.conf import settings
 
 # Create your views here.
+
+# 메인페이지
 def main(request):
     return render(request, "main.html")
 
@@ -71,4 +75,14 @@ def room(request, room_name):
         "room_name": room_name,
     }
     return render(request, "chat/room.html", context)
+
+# 로그인
+def login(request):
+    form = CustomLoginForm(data=request.POST or None)
+    return render(request,'login.html',{'form':form})
+
+# 회원가입
+def register(request):
+    form = CustomRegistrationForm(request.POST)
+    return render(request, 'register.html', {'form':form})
 

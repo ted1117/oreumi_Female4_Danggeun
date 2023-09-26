@@ -24,8 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 import os, json
 from django.core.exceptions import ImproperlyConfigured
 
-# secret_file = os.path.join(BASE_DIR, 'secrets.json') # secrets.json 파일 위치를 명시
-secret_file = "mycarrotproject/secret.json"
+secret_file = os.path.join(BASE_DIR, 'secret.json') # secrets.json 파일 위치를 명시
+# secret_file = "mycarrotproject/secret.json"
 
 with open(secret_file) as f:
     secrets = json.loads(f.read())
@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize', #humanize 추가
 ]
 
 MIDDLEWARE = [
