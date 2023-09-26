@@ -50,7 +50,7 @@ class ChatRoom(models.Model):
         _type_: _description_
     """
     room_id = models.AutoField(primary_key=True)
-    post_id = models.ForeignKey(DanggeunPost, on_delete=models.CASCADE)
+    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
