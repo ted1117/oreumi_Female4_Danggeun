@@ -24,7 +24,8 @@
           <div class="chatbot-box">AI 봇</div>
           <ul class="chat-list-box">
             <li class="chat-room">
-              <a class="chat-room-link" href="{% url 'mycarrotapp:room' room_name='lobby' %}">
+              <a class="chat-room-link" href="{% url 'mycarrotapp:room' room_name='lobby' user_name='user2' %}">
+              {% comment %} <a class="chat-room-link" href="{% url 'mycarrotapp:get_chat' room_name='lobby' %}"> {% endcomment %}
                 <div class="chat-preview-box">
                   <div class="preview-title">
                     <span class="preview-nickname">상대방아이디</span>
@@ -71,24 +72,5 @@
         </main>
       </div>
     </div>
-
-    <input id="room-name-input" type="text" size="100" />
-    <input id="room-name-submit" type="button" value="Enter" />
-
-    <script>
-      document.querySelector("#room-name-input").focus();
-      document.querySelector("#room-name-input").onkeyup = function (e) {
-        if (e.key === "Enter") {
-          // enter, return
-          document.querySelector("#room-name-submit").click();
-        }
-      };
-
-      document.querySelector("#room-name-submit").onclick = function (e) {
-        var roomName = document.querySelector("#room-name-input").value;
-        window.location.pathname = "/chat/" + roomName + "/";
-        //window.location.pathname = roomName + "/";
-      };
-    </script>
   </body>
 </html>

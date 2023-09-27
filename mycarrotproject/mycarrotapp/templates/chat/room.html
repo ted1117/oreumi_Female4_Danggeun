@@ -127,7 +127,107 @@
   {% csrf_token %}
   <textarea class="message-input" placeholder="메시지를 입력하세요"></textarea>
   <div class="message-send-box">
-    <button class="message-send-button">전송</button>
+    <input class="message-send-button" type="button" value="전송" />
   </div>
 </form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const roomName = "{{ room_name }}";
+    const userName = "{{ user_name }}";
+
+    const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
+
+    chatSocket.onmessage = function (e) {
+      try {
+        const data = JSON.parse(e.data);
+
+        var msgBox = document.querySelector(".message-box");
+        var msgLayer = displayMsg(data);
+
+        msgBox.appendChild(msgLayer);
+
+        msgLayer.style.opacity = "0";
+
+        setTimeout(function () {
+          msgLayer.style.opacity = "1";
+        }, 10);
+
+        // 새 메시지가 추가될 때 스크롤을 아래로 이동
+        msgBox.scrollTop = msgBox.scrollHeight;
+      } catch (error) {
+        console.error("Error parsing JSON: ", error);
+      }
+    };
+
+    chatSocket.onclose = function (e) {
+      console.error("Chat socket closed unexpectedly");
+    };
+
+    document.querySelector(".message-input").focus();
+    document.querySelector(".message-input").onkeyup = function (e) {
+      if (e.keyCode === 13) {
+        // enter, return
+        document.querySelector(".message-send-button").click();
+      }
+    };
+
+    document.querySelector(".message-send-button").onclick = function (e) {
+      const messageInputDom = document.querySelector(".message-input");
+      const message = messageInputDom.value;
+      const currentTime = getCurrentTime();
+      chatSocket.send(
+        JSON.stringify({
+          username: userName,
+          message: message,
+          time: currentTime,
+        })
+      );
+
+      messageInputDom.value = "";
+    };
+
+    // 말풍선 만드는 함수
+    function displayMsg(data) {
+      var msgContent = document.createElement("p");
+      msgContent.textContent = data.message;
+      msgContent.setAttribute("class", "message-content");
+
+      var msgLayer = document.createElement("div");
+      var msgBubble = document.createElement("div");
+
+      if (data.username === userName) {
+        // 내가 보낸 메시지
+        msgBubble.setAttribute("class", "message right");
+        msgLayer.setAttribute("class", "message-layer right");
+      } else {
+        // 상대방이 보낸 메시지
+        msgBubble.setAttribute("class", "message left");
+        msgLayer.setAttribute("class", "message-layer left");
+      }
+
+      msgBubble.appendChild(msgContent);
+
+      var msgTime = document.createElement("div");
+      msgTime.textContent = data.time;
+      msgTime.setAttribute("class", "message-time");
+
+      var msgTimeBox = document.createElement("div");
+      msgTimeBox.setAttribute("class", "message-time-box");
+      msgTimeBox.appendChild(msgTime);
+
+      msgLayer.appendChild(msgBubble);
+      msgLayer.appendChild(msgTimeBox);
+
+      return msgLayer;
+    }
+  });
+
+  // 현재 시각을 가져오는 함수
+  function getCurrentTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, "0");
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+</script>
 {% endif %} {% endblock %}

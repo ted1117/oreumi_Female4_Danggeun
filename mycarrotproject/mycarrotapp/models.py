@@ -69,8 +69,8 @@ class Chat(models.Model):
         is_read (BooleanField): _상대방의 메시지 읽음 여부_
         sent_at (DateTimeField): _메시지 전송 시각_
     """
-    room_id = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
-    from_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    room_id = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, null=True)
+    from_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     content = models.TextField()
     is_read = models.BooleanField(default=False)
     sent_at = models.DateTimeField(auto_now=True)
