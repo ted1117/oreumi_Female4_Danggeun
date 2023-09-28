@@ -257,6 +257,14 @@ a {
     height: calc(100% - 111px);
 }
 
+.message-box:not(:hover)::-webkit-scrollbar {
+    opacity: 0;
+}
+
+*:not(:hover) {
+    scrollbar-color: transparent transparent;
+}
+
 .message-layer {
     display: flex;
     margin-top: 20px;
@@ -290,11 +298,11 @@ a {
 
 .message-time {
     color: #797979;
-        font-family: Noto Sans KR;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
+    font-family: Noto Sans KR;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
 }
 
 .message-input-box {
@@ -338,12 +346,11 @@ a {
     border-radius: 4px;
 
     color: #323232;
-        text-align: right;
-        font-family: Noto Sans KR;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
+    font-family: Noto Sans KR;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
 }
 
 .empty-box {

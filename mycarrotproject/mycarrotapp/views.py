@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
 from .models import Post, UserInfo
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.db.models import Q
 
 # Create your views here.
@@ -115,9 +117,14 @@ def create_post(request):
 def chat(request):
     return render(request, "chat/chat.html")
 
-def room(request, room_name):
+# @login_required
+def room(request, room_name, user_name):
+    user, created = User.objects.get_or_create(username=user_name)
+    # login(request, user)
+
     context = {
         "room_name": room_name,
+        "user_name": user_name,
     }
     return render(request, "chat/room.html", context)
 
