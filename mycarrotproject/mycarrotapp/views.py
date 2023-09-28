@@ -7,6 +7,7 @@ from .models import Post, UserInfo
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.db.models import Q
 
 # Create your views here.
 
@@ -46,8 +47,57 @@ def trade_post(request, pk):
 
     return render(request, 'dangun_app/trade_post.html', context)
 
+# 거래글쓰기 화면
+@login_required
 def write(request):
-    return render(request, 'mycarrotapp/write.html')
+    try:
+        user_profile = UserInfo.objects.get(user=request.user_name)
+        
+        if user_profile.region_cert == 'Y':
+            return render(request, 'mycarrotapp/write.html')
+        else:
+            return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.')
+    except UserInfo.DoesNotExist:
+        return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.')
+
+
+# 거래글수정 화면
+def edit(request, id):
+    post = get_object_or_404(Post, id=id)
+    if post:
+        post.description = post.description.strip()
+    if request.method == "POST":
+        post.title = request.POST['title']
+        post.price = request.POST['price']
+        post.description = request.POST['description']
+        post.location = request.POST['location']
+        if 'images' in request.FILES:
+            post.images = request.FILES['images']
+        post.save()
+        return redirect('mycarrotapp:trade_post', pk=id)
+
+    return render(request, 'mycarrotapp/write.html', {'post': post})
+
+# 포스트 검색
+def search(request):
+    query = request.GET.get('search')
+    if query:
+        results = Post.objects.filter(Q(title__icontains=query) | Q(location__icontains=query))
+    else:
+        results = Post.objects.all()
+    
+    return render(request, 'mycarrotapp/search.html', {'posts': results})
+
+# 동네인증 화면
+@login_required
+def location(request):
+    try:
+        user_profile = UserInfo.objects.get(user_id=request.user_name)
+        region = user_profile.region
+    except UserInfo.DoesNotExist:
+        region = None
+
+    return render(request, 'mycarrotapp/location.html', {'region': region})
 
 # 포스트 업로드
 @login_required
