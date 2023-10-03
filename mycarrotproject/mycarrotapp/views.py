@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
-from .models import Post, UserInfo
+from .models import Post, UserInfo, ChatRoom
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -115,7 +115,10 @@ def create_post(request):
 
 
 def chat(request):
-    return render(request, "chat/chat.html")
+    user = request.user.id
+    rooms = ChatRoom.objects.filter(Q(buyer=user) | Q(seller=user)).order_by("-updated_at")
+    context = { "rooms": rooms }
+    return render(request, "chat/chat.html", context)
 
 # @login_required
 def room(request, room_name, user_name):

@@ -134,6 +134,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     const roomName = "{{ room_name }}";
     const userName = "{{ user_name }}";
+    const isGPT = roomName === "chatbot";
 
     const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
 
@@ -177,6 +178,7 @@
       const currentTime = getCurrentTime();
       chatSocket.send(
         JSON.stringify({
+          isGPT: isGPT,
           username: userName,
           message: message,
           time: currentTime,
