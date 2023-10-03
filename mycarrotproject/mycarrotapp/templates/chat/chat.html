@@ -21,11 +21,16 @@
               <input type="checkbox" name="" class="checkbox" />
             </label>
           </div>
-          <div class="chatbot-box">AI 봇</div>
+          <a class="chatbot-box" href="{% url 'mycarrotapp:room' room_name='chatbot' user_name='user2' %}">
+            <img src="{% static 'img/icon_aibot.png' %}" alt="" />
+            <div style="margin-left: 9px">
+              <div class="chatbot-title">AI 챗봇</div>
+              <div class="chatbot-desc">궁금한 내용을 물어보세요!</div>
+            </div>
+          </a>
           <ul class="chat-list-box">
             <li class="chat-room">
               <a class="chat-room-link" href="{% url 'mycarrotapp:room' room_name='lobby' user_name='user2' %}">
-              {% comment %} <a class="chat-room-link" href="{% url 'mycarrotapp:get_chat' room_name='lobby' %}"> {% endcomment %}
                 <div class="chat-preview-box">
                   <div class="preview-title">
                     <span class="preview-nickname">상대방아이디</span>
