@@ -13,7 +13,8 @@ from django.db.models import Q
 
 # 메인페이지
 def main(request):
-    return render(request, "main.html")
+    posts = Post.objects.filter(product_sold='N').order_by('-view_num')[:4]
+    return render(request, "main.html", {'posts':posts})
 
 
 # 중고거래 화면
