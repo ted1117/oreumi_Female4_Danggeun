@@ -137,6 +137,30 @@
     const isGPT = roomName === "chatbot";
 
     const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
+    const readMsgIds = [];
+
+    const markMessageAsRead = function(messageId) {
+      // 서버에 읽음 처리를 요청하는 AJAX 또는 WebSocket 요청 등을 수행
+      // 서버에서는 해당 messageId에 해당하는 메시지의 is_read 필드를 업데이트해야 함
+      // 이를 위해 메시지의 ID를 서버로 전송
+      chatSocket.send(JSON.stringify({
+        mark_as_read: true,
+        message_id: messageId
+      }));
+    };
+
+    const handleVisibilityChange = function() {
+      if (document.visibilityState === "visible") {
+        // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
+        markMessageAsRead(currentMessageId);
+      }
+    };
+
+    // 페이지의 활성화 상태 변경 이벤트 리스너 등록
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 웹소켓으로 받은 메시지 정보를 저장하기 위한 변수
+    let currentMessageId;
 
     chatSocket.onmessage = function (e) {
       try {
@@ -147,14 +171,29 @@
 
         msgBox.appendChild(msgLayer);
 
-        msgLayer.style.opacity = "0";
+        //msgLayer.style.opacity = "0";
 
-        setTimeout(function () {
-          msgLayer.style.opacity = "1";
-        }, 10);
+        //setTimeout(function () {
+        //  msgLayer.style.opacity = "1";
+        //}, 10);
 
         // 새 메시지가 추가될 때 스크롤을 아래로 이동
         msgBox.scrollTop = msgBox.scrollHeight;
+        // 메시지 읽음 처리 함수 호출
+        if (!data.isGPT && data.username !== userName) {
+          // 현재 메시지의 ID 저장
+          currentMessageId = data.message_id;
+
+          // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
+          if (document.visibilityState === "visible") {
+            markMessageAsRead(currentMessageId);
+          }
+        }
+        // 메시지 읽음 상태 처리
+        if (data.read_status) {
+          const message_id = data.message_id;
+          markAsRead(message_id);
+        }
       } catch (error) {
         console.error("Error parsing JSON: ", error);
       }
@@ -221,6 +260,18 @@
       msgLayer.appendChild(msgTimeBox);
 
       return msgLayer;
+    }
+
+    function markAsRead(message_id) {
+      if (readMsgIds.includes(message_id)) {
+        return;
+      }
+      var msgTimeBox = document.querySelector(".message-time-box");
+      var isRead = document.createElement("div");
+      isRead.setAttribute("class", "message-isread");
+      isRead.textContent = "읽음";
+      msgTimeBox.appendChild(isRead);
+      readMsgIds.push(message_id);
     }
   });
 

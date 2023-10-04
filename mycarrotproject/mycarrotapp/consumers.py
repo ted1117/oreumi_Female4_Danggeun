@@ -3,7 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Chat
 import openai
 from django.conf import settings
-
+import asyncio
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -26,15 +26,33 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-        username = text_data_json["username"]  # username을 추출
-        time = text_data_json["time"]
-        isGPT = text_data_json["isGPT"]
+        if "mark_as_read" in text_data_json:
+            await self.mark_as_read(text_data_json) 
+        else:
+            message = text_data_json["message"]
+            username = text_data_json["username"]  # username을 추출
+            time = text_data_json["time"]
+            isGPT = text_data_json["isGPT"]
 
+            new_msg = await self.create_chat(message, is_read=False)
+            
+                # Send message to room group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "username": username,
+                    "time": time,
+                    "message_id": new_msg.id
+                },
+            )
+
+            if isGPT:
+                await self.get_GPT_response(message, time)
+        
+        '''
         await self.create_chat(message, is_read=True)
-
-        if isGPT:
-            message = self.get_GPT_response(message)
 
         # Send message to room group
         await self.channel_layer.group_send(
@@ -47,16 +65,66 @@ class ChatConsumer(AsyncWebsocketConsumer):
             },
         )
 
-    def get_GPT_response(self, user_message):
-        # OpenAI GPT-3.5-turbo로 응답 생성
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # GPT-3.5-turbo를 사용하려면 "text-davinci-003"으로 설정
-            prompt=user_message,
-            max_tokens=50,
+        if isGPT:
+            await self.get_GPT_response(message, time)
+        '''
+
+    async def mark_as_read(self, event):
+        message_id = event["message_id"]
+        message = await self.get_message_by_id(message_id)
+
+        # 수정된 부분: 메시지를 읽었을 때에만 is_read를 True로 설정
+        if message:
+            message.is_read = True
+            await self.save_message(message)
+
+        # 수정된 부분: 읽음 상태를 브로드캐스팅
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "read_status",
+                "message_id": message_id
+            }
+        )
+
+    # Receive read status from room group
+    async def read_status(self, event):
+        message_id = event["message_id"]
+
+        # Send read status to WebSocket
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "read_status": True,
+                    "message_id": message_id
+                }
+            )
+        )
+        
+    async def get_GPT_response(self, user_message, time):
+        query = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": user_message},
+            ],
+            max_tokens=1024,
             temperature=0.7
         )
-        gpt3_turbo_response = response.choices[0].text.strip()
-        return gpt3_turbo_response
+        response = query['choices'][0]['message']['content'].strip()
+
+        await self.create_chat(response)
+
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "message": response,
+                "username": "ChatGPT",
+                "time": time,
+            },
+        )
 
     # stackoverflow
     from channels.db import database_sync_to_async
@@ -70,7 +138,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         username = event["username"]  # username을 추출
         time = event["time"]
-        #isGPT = event["isGPT"]
+        message_id = event["message_id"]
+        #isGPT = event.get("isGPT", False)
         #new_msg = await self.create_chat(message, is_read=True)
 
         # Send message and username to WebSocket
@@ -80,6 +149,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "message": message,
                     "username": username,
                     "time": time,
+                    "message_id": message_id
+                    #"isGPT": isGPT
                 }  # username도 함께 전송
             )
         )
+
+    @database_sync_to_async
+    def get_message_by_id(self, message_id):
+        try:
+            return Chat.objects.get(id=message_id)
+        except Chat.DoesNotExist:
+            return None
+
+    @database_sync_to_async
+    def save_message(self, message):
+        message.save()

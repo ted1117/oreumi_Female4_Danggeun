@@ -57,6 +57,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "daphne",
     "channels",
+    "channels_postgres",
     "mycarrotapp",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -103,6 +104,14 @@ WSGI_APPLICATION = 'mycarrotproject.wsgi.application'
 
 DATABASES = {
     'default': {
+        "ENGINE": "django.db.backends.postgresql",
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        "PASSWORD": DB_PWD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT
+    },
+    "channels_postgres": {
         "ENGINE": "django.db.backends.postgresql",
         'NAME': DB_NAME,
         'USER': DB_USER,
@@ -167,9 +176,14 @@ ASGI_APPLICATION = "mycarrotproject.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": "channels_postgres.core.PostgresChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "ENGINE": "django.db.backends.postgresql",
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            "PASSWORD": DB_PWD,
+            "HOST": DB_HOST,
+            "PORT": DB_PORT
         },
     },
 }

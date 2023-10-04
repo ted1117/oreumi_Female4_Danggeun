@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
-from .models import Post, UserInfo, ChatRoom
+from .models import Post, UserInfo, ChatRoom, Chat
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -130,6 +130,14 @@ def room(request, room_name, user_name):
         "user_name": user_name,
     }
     return render(request, "chat/room.html", context)
+
+def mark_as_read(request, message_id):
+    message = get_object_or_404(Chat, id=message_id)
+
+    message.is_read = True
+    message.save()
+
+    return JsonResponse({"status": "success"})
 
 # 로그인
 def login(request):
