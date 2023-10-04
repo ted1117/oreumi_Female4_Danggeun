@@ -3,8 +3,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
-from .models import Post, UserInfo
+from .models import Post, UserInfo, ChatRoom
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib import messages
@@ -13,7 +15,8 @@ from django.contrib import messages
 
 # 메인페이지
 def main(request):
-    return render(request, "main.html")
+    posts = Post.objects.filter(product_sold='N').order_by('-view_num')[:4]
+    return render(request, "main.html", {'posts':posts})
 
 
 # 중고거래 화면
@@ -115,11 +118,19 @@ def create_post(request):
 
 
 def chat(request):
-    return render(request, "chat/chat.html")
+    user = request.user.id
+    rooms = ChatRoom.objects.filter(Q(buyer=user) | Q(seller=user)).order_by("-updated_at")
+    context = { "rooms": rooms }
+    return render(request, "chat/chat.html", context)
 
-def room(request, room_name):
+# @login_required
+def room(request, room_name, user_name):
+    user, created = User.objects.get_or_create(username=user_name)
+    # login(request, user)
+
     context = {
         "room_name": room_name,
+        "user_name": user_name,
     }
     return render(request, "chat/room.html", context)
 

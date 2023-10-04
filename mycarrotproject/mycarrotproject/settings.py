@@ -44,6 +44,7 @@ DB_NAME = get_secret("DB_NAME")
 DB_PWD = get_secret("DB_PWD")
 DB_HOST = get_secret("DB_HOST")
 DB_PORT = get_secret("DB_PORT")
+OPENAI_KEY = get_secret("OPENAI_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -163,3 +164,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ### Chat
 ASGI_APPLICATION = "mycarrotproject.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

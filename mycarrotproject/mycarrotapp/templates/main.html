@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/nav_bar.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/footer.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}" />
     <title>Main</title>
   </head>
   <body>
-    {% comment %} {% include 'dangun_app/nav.html' %} {% endcomment %}
+    {% include 'nav_bar.html' %}
 
     <div class="content-box section1">
       <div class="container between flex-box">
@@ -84,7 +85,7 @@
       <h1>중고거래 인기매물</h1>
       <div class="full-box trade-box">
         <div class="flex-box full-box card-container between">
-          {% comment %} {% for post in posts %} {% endcomment %}
+          {% for post in posts %}
 
             <div class="card-box">
               <a href="#" class="trade-text-link">
@@ -92,18 +93,20 @@
                     <img src="" alt="">
                 </div>
                 <div class="card-info-box">
-                  <h5>위닉스 제습기기</h5>
-                  <p class="bold">100000원</p>
-                  <p>인천 부평구 부평동</p>
+                  {% comment %} <h5>위닉스 제습기기</h5> {% endcomment %}
+                  <h5>{{post.title}}</h5>
+                  <p class="bold">{{ post.price |intcomma}}원</p>
+                  {% comment %} <p>인천 부평구 부평동</p> {% endcomment %}
+                  <p>{{ post.location }}</p>
                   <div class="flex-box">
-                    <p>조회 15</p>
+                    <p>조회 {{ post.view_num }}</p>
                     <p>·</p>
-                    <p>채팅 41</p>
+                    <p>채팅 {{ post.chat_num }}</p>
                   </div>
                 </div>
               </a>
             </div>
-          {% comment %} {% endfor %} {% endcomment %}
+          {% endfor %}
 
         </div>
         {% comment %} <a href="/trade">인기매물 더 보기</a> {% endcomment %}
@@ -111,7 +114,7 @@
       </div>
     </div>
   </div>
-  {% comment %} {% include 'footer.html' %} {% endcomment %}
+  {% include 'footer.html' %}
 
 </body>
 
