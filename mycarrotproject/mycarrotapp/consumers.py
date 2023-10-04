@@ -71,6 +71,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def mark_as_read(self, event):
         message_id = event["message_id"]
+        message_sender = event["username"]
         message = await self.get_message_by_id(message_id)
 
         # 수정된 부분: 메시지를 읽었을 때에만 is_read를 True로 설정
@@ -83,20 +84,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 "type": "read_status",
-                "message_id": message_id
+                "message_id": message_id,
+                "message_sender": message_sender
             }
         )
 
     # Receive read status from room group
     async def read_status(self, event):
         message_id = event["message_id"]
+        message_sender = event["message_sender"]
 
         # Send read status to WebSocket
         await self.send(
             text_data=json.dumps(
                 {
                     "read_status": True,
-                    "message_id": message_id
+                    "message_id": message_id,
+                    "message_sender": message_sender
                 }
             )
         )

@@ -331,6 +331,14 @@ a {
     line-height: normal;
 }
 
+.right:not(:last-of-type) .message-isread {
+    display: none;
+}
+
+.message-isread {
+    font-size: 12px;
+}
+
 .message-input-box {
     display: flex;
     flex-direction: column;
