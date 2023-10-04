@@ -9,13 +9,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/trade_post.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/nav.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/nav_bar.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/footer.css' %}" />
     <title>중고거래 상세보기</title>
 </head>
 
 <body>
-    {% comment %} {% include 'mycarrotapp/nav_bar.html' %} {% endcomment %}
+    {% include 'nav_bar.html' %}
     <div class="content-box">
         <div class="container column">
             <div class="post-box">
@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    {% comment %} {% include 'dangun_app/footer.html' %} {% endcomment %}
+    {% include 'footer.html' %}
 
 </body>
 
