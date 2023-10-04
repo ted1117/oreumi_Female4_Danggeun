@@ -25,6 +25,7 @@ class Post(models.Model):
         ordering = ['-created_at']
 
 class UserInfo(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     user_name = models.CharField(max_length=20) # 이름
     nickname = models.CharField(max_length=100) # 닉네임
     region = models.CharField() # 지역
@@ -33,6 +34,9 @@ class UserInfo(models.Model):
     create_date =models.DateTimeField(auto_now_add=True) # 가입일
     # account_id = models.CharField() # 회원 계정 ID
     # password = models.CharField() # 비밀번호
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
     
 class ChatRoom(models.Model):
     """Summary
