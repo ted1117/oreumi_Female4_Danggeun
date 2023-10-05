@@ -48,79 +48,6 @@
         <div class="message-time">오전 10:32</div>
       </div>
     </div>
-    <div class="message-layer right">
-      <div class="message right">
-        <p class="message-content">Holy shit</p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer left">
-      <div class="message left">
-        <p class="message-content">
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
-          보전하세
-        </p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer left">
-      <div class="message left">
-        <p class="message-content">Holy shit</p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer right">
-      <div class="message right">
-        <p class="message-content">Holy shit</p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer left">
-      <div class="message left">
-        <p class="message-content">
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
-          보전하세
-        </p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer left">
-      <div class="message left">
-        <p class="message-content">Holy shit</p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer right">
-      <div class="message right">
-        <p class="message-content">Holy shit</p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
-    <div class="message-layer left">
-      <div class="message left">
-        <p class="message-content">
-          동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세 무궁화 삼천리 화려강산 대한사람 대한으로 길이
-          보전하세
-        </p>
-      </div>
-      <div class="message-time-box">
-        <div class="message-time">오전 10:32</div>
-      </div>
-    </div>
   </div>
 </div>
 <form class="message-input-box" action="">
@@ -137,24 +64,72 @@
     const isGPT = roomName === "chatbot";
 
     const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
+    const readMsgIds = [];
+
+    // 메시지 읽음 여부를 웹소켓으로 전달하는 함수
+    const markMessageAsRead = function (messageId) {
+      chatSocket.send(
+        JSON.stringify({
+          mark_as_read: true,
+          message_id: messageId,
+          username: userName
+        })
+      );
+    };
+
+    // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
+    const handleVisibilityChange = function () {
+      if (document.visibilityState === "visible" && userName !== currentMessageSender && currentMessageSender !== undefined) {
+        markMessageAsRead(currentMessageId);
+      }
+    };
+
+    // 페이지의 활성화 상태 변경 이벤트 리스너 등록
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 웹소켓으로 받은 메시지 정보를 저장하기 위한 변수
+    let currentMessageId;
+    let currentMessageSender;
 
     chatSocket.onmessage = function (e) {
       try {
         const data = JSON.parse(e.data);
 
+        // 상대가 메시지를 읽으면 읽음 표시하는 함수
+        if (data.read_status && data.message_sender != userName) {
+          const message_id = data.message_id;
+          markAsRead(message_id);
+          return;
+        }
+        if (data.message === undefined ) {
+          return;
+        }
         var msgBox = document.querySelector(".message-box");
         var msgLayer = displayMsg(data);
 
         msgBox.appendChild(msgLayer);
 
-        msgLayer.style.opacity = "0";
+        //msgLayer.style.opacity = "0";
 
-        setTimeout(function () {
-          msgLayer.style.opacity = "1";
-        }, 10);
+        //setTimeout(function () {
+        //  msgLayer.style.opacity = "1";
+        //}, 10);
 
         // 새 메시지가 추가될 때 스크롤을 아래로 이동
         msgBox.scrollTop = msgBox.scrollHeight;
+        // 메시지 읽음 처리 함수 호출
+        
+        if (!data.isGPT && data.username !== userName) {
+          // 현재 메시지의 ID와 메시지 전송자 이름 저장
+          currentMessageId = data.message_id;
+          currentMessageSender = data.username;
+
+          // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
+          //if (document.visibilityState === "visible") {
+          //  markMessageAsRead(currentMessageId);
+          //}
+        }
+        
       } catch (error) {
         console.error("Error parsing JSON: ", error);
       }
@@ -221,6 +196,20 @@
       msgLayer.appendChild(msgTimeBox);
 
       return msgLayer;
+    }
+
+    // 상대가 메시지 읽음을 표시하는 함수
+    function markAsRead(message_id) {
+      if (readMsgIds.includes(message_id)) {
+        return;
+      }
+      var msgTimeBoxes = document.querySelectorAll(".message-time-box");
+      var msgTimeBox = msgTimeBoxes[msgTimeBoxes.length - 1];
+      var isRead = document.createElement("div");
+      isRead.setAttribute("class", "message-isread");
+      isRead.textContent = "읽음";
+      msgTimeBox.prepend(isRead);
+      readMsgIds.push(message_id);
     }
   });
 

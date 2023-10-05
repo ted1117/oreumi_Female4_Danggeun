@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('mycarrotapp', '0001_initial'),
@@ -14,37 +13,84 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserInfo',
+            name="UserInfo",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_name', models.CharField(max_length=20)),
-                ('nickname', models.CharField(max_length=100)),
-                ('region', models.CharField()),
-                ('manner_temp', models.IntegerField()),
-                ('region_cert', models.CharField(default='N', max_length=1)),
-                ('create_date', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("user_name", models.CharField(max_length=20)),
+                ("nickname", models.CharField(max_length=100)),
+                ("region", models.CharField()),
+                ("manner_temp", models.IntegerField()),
+                ("region_cert", models.CharField(default="N", max_length=1)),
+                ("create_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ChatRoom',
+            name="ChatRoom",
             fields=[
-                ('room_id', models.AutoField(primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('buyer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='buyer_chatrooms', to=settings.AUTH_USER_MODEL)),
-                ('post_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mycarrotapp.post')),
-                ('seller', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='seller_chatrooms', to=settings.AUTH_USER_MODEL)),
+                ("room_id", models.AutoField(primary_key=True, serialize=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "post_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mycarrotapp.post",
+                    ),
+                ),
+                (
+                    "seller",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Chat',
+            name="Chat",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('is_read', models.BooleanField(default=False)),
-                ('sent_at', models.DateTimeField(auto_now=True)),
-                ('from_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('room_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='mycarrotapp.chatroom')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                ("is_read", models.BooleanField(default=False)),
+                ("sent_at", models.DateTimeField(auto_now=True)),
+                (
+                    "from_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "room_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mycarrotapp.chatroom",
+                    ),
+                ),
             ],
         ),
     ]

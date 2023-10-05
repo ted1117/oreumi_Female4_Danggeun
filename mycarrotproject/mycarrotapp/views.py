@@ -3,11 +3,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import CustomLoginForm, CustomRegistrationForm, PostForm
-from .models import Post, UserInfo, ChatRoom
+from .models import Post, UserInfo, ChatRoom, Chat
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.db.models import Q
+from django.http import JsonResponse
+from django.contrib import messages
 
 # Create your views here.
 
@@ -46,7 +48,7 @@ def trade_post(request, pk):
         'user_profile': user_profile,
     }
 
-    return render(request, 'dangun_app/trade_post.html', context)
+    return render(request, 'mycarrotapp/trade_post.html', context)
 
 # 거래글쓰기 화면
 # @login_required
@@ -133,6 +135,14 @@ def room(request, room_name, user_name):
     }
     return render(request, "chat/room.html", context)
 
+def mark_as_read(request, message_id):
+    message = get_object_or_404(Chat, id=message_id)
+
+    message.is_read = True
+    message.save()
+
+    return JsonResponse({"status": "success"})
+
 # 로그인
 def user_login(request):
     if request.user.is_authenticated:
@@ -191,3 +201,31 @@ def register(request):
 
     return render(request, 'register.html', {'form':form, 'error_message': error_message})
 
+# 지역설정
+@login_required
+def set_region(request):
+    if request.method == "POST":
+        region = request.POST.get('region-setting')
+
+        if region:
+            try:
+                user_profile, created = UserInfo.objects.get_or_create(user=request.user)
+                user_profile.region = region
+                user_profile.save()
+
+                return redirect('mycarrotapp/location.html')
+            except Exception as e:
+                return JsonResponse({"status": "error", "message": str(e)})
+        else:
+            return JsonResponse({"status": "error", "message": "Region cannot be empty"})
+    else:
+        return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
+
+# 지역인증 완료
+@login_required
+def set_region_certification(request):
+    if request.method == "POST":
+        request.user.profile.region_certification = 'Y'
+        request.user.profile.save()
+        messages.success(request, "인증되었습니다")
+        return redirect('mycarrotapp/location.html')
