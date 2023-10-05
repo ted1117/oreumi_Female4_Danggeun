@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html>
 
-<head>
+  <head>
     <title>당근</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <script type="text/javascript">
-        alert('{{ alert_message }}');
-        window.location.href = '{% url "dangun_app:location" %}';
+      alert('{{ alert_message }}');
+      {% if redirect_url == "location" %}
+        window.location.href = '{% url "mycarrotapp:location" %}';
+      {% elif redirect_url == "current" %}
+        window.history.back();
+      {% else %}
+        window.history.back();
+      {% endif %}
     </script>
-</body>
+  </body>
 
 </html>
