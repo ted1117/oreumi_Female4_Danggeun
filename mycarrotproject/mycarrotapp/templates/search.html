@@ -15,7 +15,7 @@
   </head>
 
   <body>
-    {% include 'mycarrotapp/nav.html' %}
+    {% include 'nav.html' %}
     <div class="post-box">
       <div class="container column center">
         <div class="container column center">
@@ -26,9 +26,10 @@
                 <div class="card-box">
                   <a href="{% url 'mycarrotapp:trade_post' post.pk %}" class="trade-text-link">
                     <div class="card-img">
-                      {% if post.images %}
+                      {% comment %} {% if post.images %}
                         <img src="{{ post.images.url }}" alt="{{ post.title }}">
-                      {% endif %}
+                      {% endif %} {% endcomment %}
+                      <img src="" alt="">
                     </div>
                     <div class="card-info-box">
                       <h5>{{ post.title }}</h5>
@@ -50,7 +51,7 @@
           </div>
         </div>
       </div>
-      {% include 'mycarrotapp/footer.html' %}
+      {% include 'footer.html' %}
     </body>
 
   </html>

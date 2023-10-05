@@ -35,9 +35,9 @@ class Post(models.Model):
 class UserInfo(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     user_name = models.CharField(max_length=20) # 이름
-    nickname = models.CharField(max_length=100) # 닉네임
-    region = models.CharField(max_length=200) # 지역
-    manner_temp = models.IntegerField() # 매너온도
+    nickname = models.CharField(max_length=100,null=True) # 닉네임
+    region = models.CharField(null=True) # 지역
+    manner_temp = models.IntegerField(null=True) # 매너온도
     region_cert = models.CharField(max_length=1, default='N') # 지역인증 여부
     create_date =models.DateTimeField(auto_now_add=True) # 가입일
     # account_id = models.CharField() # 회원 계정 ID
