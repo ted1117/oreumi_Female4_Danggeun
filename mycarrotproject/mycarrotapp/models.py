@@ -38,7 +38,7 @@ class UserInfo(models.Model):
     user_name = models.CharField(max_length=20) # 이름
     nickname = models.CharField(max_length=100,null=True) # 닉네임
     region = models.CharField(max_length=200, null=True) # 지역
-    manner_temp = models.IntegerField(null=True) # 매너온도
+    manner_temp = models.FloatField(default=36.5, null=True) # 매너온도
     region_cert = models.CharField(max_length=1, default='N') # 지역인증 여부
     create_date =models.DateTimeField(auto_now_add=True) # 가입일
     # account_id = models.CharField() # 회원 계정 ID
@@ -58,14 +58,12 @@ class ChatRoom(models.Model):
         created_at (DateTimeField): _채팅방 생성 시각_
         updated_at (DateTimeField): _채팅방 최근 수정 시각_
         models (_type_): _description_
-
-    Returns:
-        _type_: _description_
     """
     room_id = models.AutoField(primary_key=True)
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="seller_chatrooms")
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buyer_chatrooms", null=True)
+    latest_chat = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -110,4 +108,5 @@ class Chat(models.Model):
 
         if self.room_id:
             self.room_id.updated_at = self.sent_at
-            self.room_id.save(update_fields=["updated_at"])
+            self.room_id.latest_chat = self.content
+            self.room_id.save(update_fields=["updated_at", "latest_chat"])      
