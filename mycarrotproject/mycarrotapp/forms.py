@@ -19,6 +19,11 @@ class CustomRegistrationForm(forms.Form):
         label='아이디',
         label_suffix='', 
     )
+    nickname = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': '닉네임을 입력해주세요', 'class': 'login-input'}),
+        label='닉네임',
+        label_suffix='', 
+    )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': '비밀번호를 입력해주세요', 'class': 'login-input'}),
         label='비밀번호',
