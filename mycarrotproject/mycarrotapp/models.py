@@ -58,9 +58,6 @@ class ChatRoom(models.Model):
         created_at (DateTimeField): _채팅방 생성 시각_
         updated_at (DateTimeField): _채팅방 최근 수정 시각_
         models (_type_): _description_
-
-    Returns:
-        _type_: _description_
     """
     room_id = models.AutoField(primary_key=True)
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
