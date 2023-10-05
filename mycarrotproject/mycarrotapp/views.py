@@ -59,7 +59,7 @@ def write(request):
     try:
         user_profile = UserInfo.objects.get(user_name=request.user)
         
-        if user_profile.region_cert == 'Y':
+        if user_profile.region_cert == 'N':
             return render(request, 'mycarrotapp/write.html')
         else:
             return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.')
@@ -208,8 +208,7 @@ def register(request):
             if password1 == password2:
                 # 새로운 유저를 생성
                 user = User.objects.create_user(username=username, password=password1)
-                user_info = UserInfo(user_name=username,nickname = nickname)
-                user_info.save()
+                user_info = UserInfo.objects.create(user=user, user_name=username, nickname=nickname)
 
                 return redirect('mycarrotapp:login')
             else:

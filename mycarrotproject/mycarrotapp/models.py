@@ -18,13 +18,14 @@ class Post(models.Model):
     view_num = models.PositiveIntegerField(default=0)  # 조회 수
     chat_num = models.PositiveIntegerField(default=0)  # 채팅 수
 
-    def save(self, *args, **kwargs) -> None:
-        super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields", None)
 
-        if self.id:
+        if update_fields and "chat_num" not in update_fields:
             chat_num = ChatRoom.objects.filter(post_id=self.id).count()
             self.chat_num = chat_num
-            self.save(update_fields=["chat_num"])
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -36,7 +37,7 @@ class UserInfo(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     user_name = models.CharField(max_length=20) # 이름
     nickname = models.CharField(max_length=100,null=True) # 닉네임
-    region = models.CharField(null=True) # 지역
+    region = models.CharField(max_length=200, null=True) # 지역
     manner_temp = models.IntegerField(null=True) # 매너온도
     region_cert = models.CharField(max_length=1, default='N') # 지역인증 여부
     create_date =models.DateTimeField(auto_now_add=True) # 가입일
@@ -45,7 +46,6 @@ class UserInfo(models.Model):
 
     def __str__(self):
         return f'{self.user.username} Profile'
-    
 class ChatRoom(models.Model):
     """Summary
     채팅방 정보 모델
@@ -65,12 +65,28 @@ class ChatRoom(models.Model):
     room_id = models.AutoField(primary_key=True)
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="seller_chatrooms")
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buyer_chatrooms")
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buyer_chatrooms", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return self.room_id
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.post_id:
+            post = self.post_id
+            post.chat_num = ChatRoom.objects.filter(post_id=post.id).count()
+            post.save(update_fields=["chat_num"])
+
+def post_delete_chatroom(sender, instance, **kwargs):
+    if instance.post_id:
+        post = instance.post_id
+        post.chat_num = ChatRoom.objects.filter(post_id=post.id).count()
+        post.save(update_fields=["chat_num"])
+
+models.signals.post_delete.connect(post_delete_chatroom, sender=ChatRoom)
     
 class Chat(models.Model):
     """_summary_
