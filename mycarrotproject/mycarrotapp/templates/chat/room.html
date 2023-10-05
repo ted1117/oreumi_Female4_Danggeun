@@ -1,17 +1,29 @@
-{% extends "chat/chat.html" %} {% load static %} {% block content %} {% if room_name %}
+{% extends "chat/chat.html" %} {% load static %} {% load humanize %}{% block content %} {% if room_name %} 
 <div class="chat-box">
   <div class="partner-id-box">
-    <span class="partner-nickname">상대방아이디</span>
-    <span class="partner-temperature">36.9°C</span>
+    {% if room_name == "999" %}
+    <span class="partner-nickname">챗봇</span>
+    {% else %}
+    <span class="partner-nickname">
+      {% if request.user.id != room_name.seller.id %}
+        {{ room_name.seller }}
+      {% else %}
+        {{ room_name.buyer }}{{ user_name }}
+      {% endif %}
+    </span>
+    <span class="partner-temperature">{{ user_name.manner_temp }}℃</span>
+    {% endif %}
   </div>
-  <a class="product-info-box" href="#">
-    <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="상품 썸네일" />
+  {% if post %}
+  <a class="product-info-box" href="{% url 'mycarrotapp:trade_post' pk=post.id %}">
+    <img class="preview-image" src="{{ post.images.url }}" alt="상품 썸네일" />
     <div class="product-info">
-      <div class="product-name">LG 양문형 냉장고 779L</div>
-      <div class="product-price">150,000원</div>
+      <div class="product-name">{{ post.title }}</div>
+      <div class="product-price">{{ post.price|intcomma }}원</div>
     </div>
     <span class="product-status">거래완료</span>
   </a>
+  {% endif %}
   <div class="message-box">
     <div class="message-layer left">
       <div class="message left">
@@ -48,20 +60,49 @@
         <div class="message-time">오전 10:32</div>
       </div>
     </div>
+    {% for message in messages %}
+    {% if request.user != message.from_id %}
+    <div class="message-layer left{% if not message.is_read %} unread{% endif %}" id={{ message.id }}>
+      <div class="message left">
+        <p class="message-content">{{ message.content }}</p>
+      </div>
+      <div class="message-time-box">
+        <div class="message-time">{{ message.sent_at|date:"a h:i" }}</div>
+      </div>
+    </div>
+    {% else %}
+    <div class="message-layer right" id={{ message.id }}>
+      <div class="message right">
+        <p class="message-content">{{ message.content }}</p>
+      </div>
+      <div class="message-time-box">
+        {% if message.is_read %}
+        <div class="message-isread">읽음</div>
+        {% endif %}
+        <div class="message-time">{{ message.sent_at|date:"a h:i" }}</div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
   </div>
 </div>
-<form class="message-input-box" action="">
+<form class="message-input-box" action="" method="POST">
   {% csrf_token %}
-  <textarea class="message-input" placeholder="메시지를 입력하세요"></textarea>
+  <textarea class="message-input" id="prompt" name="prompt" placeholder="메시지를 입력하세요"></textarea>
   <div class="message-send-box">
     <input class="message-send-button" type="button" value="전송" />
   </div>
 </form>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const roomName = "{{ room_name }}";
-    const userName = "{{ user_name }}";
-    const isGPT = roomName === "chatbot";
+    {% if room_name.pk %}
+      const roomName = "{{ room_name.pk }}";
+      const userName = "{{ user_name.user_name }}";
+    {% else %}
+      const roomName = "{{ room_name }}";
+      const userName = "{{ user_name }}";
+    {% endif %}
+    const isGPT = roomName === "999";
 
     const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
     const readMsgIds = [];
@@ -80,7 +121,11 @@
     // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
     const handleVisibilityChange = function () {
       if (document.visibilityState === "visible" && userName !== currentMessageSender && currentMessageSender !== undefined) {
-        markMessageAsRead(currentMessageId);
+        //markMessageAsRead(currentMessageId);
+        if (!readMsgIds.includes(currentMessageId)) {
+          markMessageAsRead(currentMessageId)
+          readMsgIds.push(currentMessageId)
+        }
       }
     };
 
@@ -125,9 +170,9 @@
           currentMessageSender = data.username;
 
           // 페이지가 활성화된 경우, 현재 메시지를 읽음 처리
-          //if (document.visibilityState === "visible") {
-          //  markMessageAsRead(currentMessageId);
-          //}
+          if (document.visibilityState === "visible") {
+            markMessageAsRead(currentMessageId);
+          }
         }
         
       } catch (error) {
@@ -154,11 +199,24 @@
       chatSocket.send(
         JSON.stringify({
           isGPT: isGPT,
+          roomname: roomName,
           username: userName,
           message: message,
           time: currentTime,
         })
       );
+
+      if (isGPT) {
+        const userMsgLayer = displayMsg({
+          message: message,
+          username: userName,
+          time: currentTime
+        });
+        var msgBox = document.querySelector(".message-box");
+        msgBox.appendChild(userMsgLayer);
+        // 새 메시지가 추가될 때 스크롤을 아래로 이동
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
 
       messageInputDom.value = "";
     };
@@ -200,17 +258,43 @@
 
     // 상대가 메시지 읽음을 표시하는 함수
     function markAsRead(message_id) {
+      /*
       if (readMsgIds.includes(message_id)) {
         return;
-      }
+      }*/
       var msgTimeBoxes = document.querySelectorAll(".message-time-box");
       var msgTimeBox = msgTimeBoxes[msgTimeBoxes.length - 1];
       var isRead = document.createElement("div");
       isRead.setAttribute("class", "message-isread");
       isRead.textContent = "읽음";
       msgTimeBox.prepend(isRead);
-      readMsgIds.push(message_id);
+      //readMsgIds.push(message_id);
     }
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const $target = entry.target;
+        if (entry.isIntersecting) {
+          if (!readMsgIds.includes(currentMessageId)) {
+            markMessageAsRead(currentMessageId)
+            readMsgIds.push(currentMessageId)
+            //$target.classList.remove("unread")
+          }
+        }
+      })
+    })
+
+    const $items = document.querySelectorAll(".unread");
+    
+    const $item = $items[$items.length - 1]
+    currentMessageId = $item.id
+    //io.observe($item);
+    
+    
+    $items.forEach(item => {
+      io.observe(item);
+      item.classList.remove("unread")
+    });
   });
 
   // 현재 시각을 가져오는 함수

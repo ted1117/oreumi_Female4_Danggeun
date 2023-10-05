@@ -1,9 +1,10 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Chat
+from .models import Chat, ChatRoom, UserInfo, User
 import openai
 from django.conf import settings
 import asyncio
+from django.db.models import F, Q
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -30,11 +31,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.mark_as_read(text_data_json) 
         else:
             message = text_data_json["message"]
+            #roomname = text_data_json["roomname"]
+            roomname = self.room_name
             username = text_data_json["username"]  # username을 추출
             time = text_data_json["time"]
             isGPT = text_data_json["isGPT"]
 
-            new_msg = await self.create_chat(message, is_read=False)
+            if isGPT:
+                await self.get_GPT_response(message, time)
+                return
+            new_msg = await self.create_chat(message, roomname, username, is_read=False)
             
                 # Send message to room group
             await self.channel_layer.group_send(
@@ -42,6 +48,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 {
                     "type": "chat_message",
                     "message": message,
+                    "roomname": roomname,
                     "username": username,
                     "time": time,
                     "message_id": new_msg.id
@@ -72,14 +79,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def mark_as_read(self, event):
         message_id = event["message_id"]
         message_sender = event["username"]
-        message = await self.get_message_by_id(message_id)
-
-        # 수정된 부분: 메시지를 읽었을 때에만 is_read를 True로 설정
+        room_id = self.room_name
+        message = await self.get_message_by_id(message_id, room_id)
+        await self.save_messages(room_id, message_id)
+        # 메시지를 읽었을 때에만 is_read를 True로 설정
         if message:
+            pass
             message.is_read = True
             await self.save_message(message)
 
-        # 수정된 부분: 읽음 상태를 브로드캐스팅
+        # 읽음 상태를 브로드캐스팅
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -117,7 +126,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         response = query['choices'][0]['message']['content'].strip()
 
-        await self.create_chat(response)
+        #await self.create_chat(response)
 
         # Send message to room group
         await self.channel_layer.group_send(
@@ -125,6 +134,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             {
                 "type": "chat_message",
                 "message": response,
+                "roomname": self.room_name,
                 "username": "ChatGPT",
                 "time": time,
             },
@@ -134,15 +144,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
     from channels.db import database_sync_to_async
 
     @database_sync_to_async
-    def create_chat(self, message, is_read):
-        return Chat.objects.create(content=message, is_read=is_read)
+    def create_chat(self, message, roomname, username, is_read):
+        roomname = ChatRoom.objects.get(pk=roomname)
+        username = User.objects.get(username=username)
+        return Chat.objects.create(content=message, from_id=username, room_id=roomname, is_read=is_read)
 
     # Receive message from room group
     async def chat_message(self, event):
         message = event["message"]
+        roomname = event["roomname"]
         username = event["username"]  # username을 추출
         time = event["time"]
-        message_id = event["message_id"]
+        try:
+            message_id = event["mesage_id"]
+        except:
+            message_id = 99999
+        #message_id = event["message_id"] if event["message_id"] else 9999
         #isGPT = event.get("isGPT", False)
         #new_msg = await self.create_chat(message, is_read=True)
 
@@ -151,6 +168,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data=json.dumps(
                 {
                     "message": message,
+                    "roomname": roomname,
                     "username": username,
                     "time": time,
                     "message_id": message_id
@@ -160,7 +178,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     @database_sync_to_async
-    def get_message_by_id(self, message_id):
+    def get_message_by_id(self, message_id, room_id):
         try:
             return Chat.objects.get(id=message_id)
         except Chat.DoesNotExist:
@@ -169,3 +187,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, message):
         message.save()
+
+    @database_sync_to_async
+    def save_messages(self, room_id, message_id):
+        try:
+            # 현재 메시지 이전의 메시지들을 가져와서 is_read를 True로 업데이트
+            Chat.objects.filter(
+                Q(room_id=room_id) & Q(id__lte=message_id) & Q(is_read=False)
+            ).update(is_read=True)
+
+        except Exception as e:
+            print(f"An error occurred while updating messages: {e}")

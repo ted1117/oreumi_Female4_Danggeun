@@ -10,6 +10,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib import messages
+import openai
 
 # Create your views here.
 
@@ -120,38 +121,60 @@ def create_post(request):
         form = PostForm()
     return render(request, 'mycarrotapp/write.html', {'form': form})
 
+def get_chat_rooms(user):
+    rooms = ChatRoom.objects.filter(Q(buyer=user) | Q(seller=user)).order_by("-updated_at")
+    posts = [get_object_or_404(Post, pk=room.post_id.pk) for room in rooms]
+    context = { "rooms": rooms, "posts": posts }
+    return context
 
 def chat(request):
     user = request.user.id
     rooms = ChatRoom.objects.filter(Q(buyer=user) | Q(seller=user)).order_by("-updated_at")
-    context = { "rooms": rooms }
+    posts = [get_object_or_404(Post, pk=room.post_id.pk) for room in rooms]
+    context = { "rooms": rooms, "posts": posts }
     return render(request, "chat/chat.html", context)
 
 # @login_required
 def room(request, room_name, user_name):
-    #user, created = User.objects.get_or_create(username=user_name)
-    # login(request, user)
+    if room_name != "999":
+        room = ChatRoom.objects.get(pk=room_name)
+        user = UserInfo.objects.get(user_name=user_name)
+        messages = Chat.objects.filter(room_id=room.pk).order_by("sent_at")
+        post = Post.objects.get(pk=room.post_id.id)
 
-    context = {
-        "room_name": room_name,
-        "user_name": user_name,
-    }
+        context = {
+            "room_name": room,
+            "user_name": user,
+            "messages": messages,
+            "post": post,
+        }
+    else:
+        context = {
+            "room_name": room_name,
+            "user_name": user_name,
+        }
+    chat_rooms = get_chat_rooms(request.user.id)
+    context.update(chat_rooms)
     return render(request, "chat/room.html", context)
 
 def get_or_create_room(request, viewer, post_id):
+    post = Post.objects.get(pk=post_id)
+    viewer = User.objects.get(pk=viewer)
     room, _ = ChatRoom.objects.get_or_create(
-        post_id = post_id,
+        post_id = post,
         buyer=viewer,
         defaults={
             "seller": get_object_or_404(Post, pk=post_id).user
         }
     )
 
+    chat_rooms = get_chat_rooms(request.user.id)
     context = {
-        "room_name": room.id,
+        "room_name": room,
         "user_name": viewer,
+        "post": post,
     }
-
+    context.update(chat_rooms)
     return render(request, "chat/room.html", context)
 
 def mark_as_read(request, message_id):
@@ -161,6 +184,29 @@ def mark_as_read(request, message_id):
     message.save()
 
     return JsonResponse({"status": "success"})
+
+def getGPT(request, room_name, user_name):
+    openai.api_key = settings.OPENAI_KEY
+    chat_rooms = get_chat_rooms(request.user.id)
+    context = {
+        "room_name": room_name,
+        "user_name": user_name,
+    }
+    context.update(chat_rooms)
+    if request.method == "POST":
+        prompt = request.POST.get("prompt")
+        response = openai.ChatCompletion(
+            model="gpt-3.5-turbo",
+            messages=[{
+                "role": "user",
+                "messages": prompt,
+                "max_tokens": 512,
+                "temperature": 0.7,
+            }]
+        )
+        return JsonResponse({"response": response})
+    
+    return render(request, "chat/room.html", context)
 
 # 로그인
 def user_login(request):

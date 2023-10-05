@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/nav_bar.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Chat</title>
   </head>
 
@@ -21,7 +22,7 @@
               <input type="checkbox" name="" class="checkbox" />
             </label>
           </div>
-          <a class="chatbot-box" href="{% url 'mycarrotapp:room' room_name='chatbot' user_name='user2' %}">
+          <a class="chatbot-box" href="{% url 'mycarrotapp:room' room_name='999' user_name=request.user.username %}">
             <img src="{% static 'img/icon_aibot.png' %}" alt="" />
             <div style="margin-left: 9px">
               <div class="chatbot-title">AI 챗봇</div>
@@ -65,6 +66,34 @@
                 <img class="preview-image" src="{% static 'img/product-preview.webp' %}" alt="거래 품목 썸네일" />
               </a>
             </li>
+            {% for room in rooms %}
+            {% with post=room.post_id %}
+            <li class="chat-room">
+              <a class="chat-room-link" href="{% url 'mycarrotapp:room' room_name=room.pk user_name=request.user.username %}" >
+                <div class="chat-preview-box">
+                  <div class="preview-title">
+                    <span class="preview-nickname">
+                      {% if request.user.id != room.seller.id %}
+                        {{ room.seller }}
+                      {% else %}
+                        {{ room.buyer }}
+                      {% endif %}
+                    </span>
+                    <div class="preview-text">
+                      <span>{{ post.location }}</span>
+                      <span> · </span>
+                      <span>{{ post.created_at|timesince }}</span>
+                    </div>
+                  </div>
+                  <div class="preview-description">
+                    <span class="description-text">{{ room.latest_chat }}</span>
+                  </div>
+                </div>
+                <img class="preview-image" src="{{ post.images.url }}" alt="거래 품목 썸네일" />
+              </a>
+            </li>
+            {% endwith %}
+            {% endfor %}
           </ul>
         </nav>
         <main class="chat-main-container">
