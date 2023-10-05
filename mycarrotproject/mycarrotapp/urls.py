@@ -11,6 +11,7 @@ urlpatterns = [
     path('trade_post/<int:pk>/', views.trade_post, name='trade_post'),
     path('write/', views.write, name='write'),
     path('create_form/', views.create_post, name='create_form'),
+    path('alert/<str:alert_message>/<str:redirect_url>/', views.alert, name='alert'),
     path('edit/<int:id>/', views.edit, name='edit'),
     path('location/', views.location, name='location'),
     path('set_region/', views.set_region, name='set_region'),

@@ -25,6 +25,14 @@ def trade(request):
     top_views_posts = Post.objects.filter(product_sold='N').order_by('-view_num')
     return render(request, 'mycarrotapp/trade.html', {'posts': top_views_posts})
 
+# Alert용 화면
+def alert(request, alert_message, redirect_url='location'): # default 값을 'location'으로 설정
+    context = {
+        'alert_message': alert_message,
+        'redirect_url': redirect_url
+    }
+    return render(request, 'mycarrotapp/alert.html', context)
+
 # 중고거래상세정보(각 포스트) 화면
 def trade_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -60,13 +68,12 @@ def write(request):
     try:
         user_profile = UserInfo.objects.get(user_name=request.user)
         
-        if user_profile.region_cert == 'N':
+        if user_profile.region_cert == 'Y':
             return render(request, 'mycarrotapp/write.html')
         else:
-            return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.')
+            return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.', redirect_url='location')
     except UserInfo.DoesNotExist:
-        return redirect('mycarrotapp:main')
-    #     return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.')
+        return redirect('mycarrotapp:alert', alert_message='동네인증이 필요합니다.', redirect_url='location')
 
 
 # 거래글수정 화면
@@ -100,7 +107,7 @@ def search(request):
 @login_required
 def location(request):
     try:
-        user_profile = UserInfo.objects.get(user_id=request.user_name)
+        user_profile = UserInfo.objects.get(user_id=request.user)
         region = user_profile.region
     except UserInfo.DoesNotExist:
         region = None
@@ -277,7 +284,7 @@ def set_region(request):
                 user_profile.region = region
                 user_profile.save()
 
-                return redirect('mycarrotapp/location.html')
+                return redirect('mycarrotapp:location')
             except Exception as e:
                 return JsonResponse({"status": "error", "message": str(e)})
         else:
@@ -292,4 +299,4 @@ def set_region_certification(request):
         request.user.profile.region_certification = 'Y'
         request.user.profile.save()
         messages.success(request, "인증되었습니다")
-        return redirect('mycarrotapp/location.html')
+        return redirect('mycarrotapp:location')
