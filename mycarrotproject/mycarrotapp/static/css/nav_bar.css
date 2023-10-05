@@ -73,6 +73,7 @@
     background-color: #F3F3F3;
     padding: 9px 63px 7px 10px;
     border: none;
+    box-sizing: border-box;
 }
 
 .nav-button {
