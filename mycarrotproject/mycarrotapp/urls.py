@@ -18,7 +18,7 @@ urlpatterns = [
     path("chat/", views.chat, name="chat"),
     path("chat/<str:room_name>/<str:user_name>/", views.room, name="room"),
     path("chat/<int:post_id>/<str:viewer>/", views.get_or_create_room, name="get_or_create_room"),
-    path('login/', views.login, name='login'),
+    path('login/', views.user_login, name='login'),
     # path('logout/', auth_views.LogoutView.as_view(next_page='mycarrotapp:main'), name='logout'),
     path('logout/', views.user_logout, name='logout'),
     path('register/', views.register, name='register'),
