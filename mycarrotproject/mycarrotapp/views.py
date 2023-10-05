@@ -34,9 +34,11 @@ def trade_post(request, pk):
         if request.user != post.user:
             post.view_num += 1
             post.save()
+        viewer = request.user
     else:
         post.view_num += 1
         post.save()
+        viewer = None
 
     try:
         user_profile = UserInfo.objects.get(user=post.user)
@@ -46,6 +48,7 @@ def trade_post(request, pk):
     context = {
         'post': post,
         'user_profile': user_profile,
+        'viewer': viewer,
     }
 
     return render(request, 'mycarrotapp/trade_post.html', context)
@@ -126,13 +129,29 @@ def chat(request):
 
 # @login_required
 def room(request, room_name, user_name):
-    user, created = User.objects.get_or_create(username=user_name)
+    #user, created = User.objects.get_or_create(username=user_name)
     # login(request, user)
 
     context = {
         "room_name": room_name,
         "user_name": user_name,
     }
+    return render(request, "chat/room.html", context)
+
+def get_or_create_room(request, viewer, post_id):
+    room, _ = ChatRoom.objects.get_or_create(
+        post_id = post_id,
+        buyer=viewer,
+        defaults={
+            "seller": get_object_or_404(Post, pk=post_id).user
+        }
+    )
+
+    context = {
+        "room_name": room.id,
+        "user_name": viewer,
+    }
+
     return render(request, "chat/room.html", context)
 
 def mark_as_read(request, message_id):
