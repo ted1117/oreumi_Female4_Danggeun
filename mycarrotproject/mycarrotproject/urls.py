@@ -16,13 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-<<<<<<< HEAD
-from django.conf.urls.static import static
-from django.conf import settings
-=======
 from django.conf import settings
 from django.conf.urls.static import static
->>>>>>> 168fd7f86ef7420483c4c64f6457ea0142236dc8
 
 urlpatterns = [
     path('admin/', admin.site.urls),
