@@ -118,7 +118,7 @@ def create_post(request):
             return redirect('mycarrotapp:trade_post', pk=post.pk)  # 저장 후 상세 페이지로 이동
     else:
         form = PostForm()
-    return render(request, 'mycarrotapp/trade_post.html', {'form': form})
+    return render(request, 'mycarrotapp/write.html', {'form': form})
 
 
 def chat(request):
