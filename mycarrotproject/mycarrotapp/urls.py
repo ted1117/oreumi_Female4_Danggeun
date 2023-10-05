@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 from .views import set_region_certification
 
 app_name = 'mycarrotapp'
@@ -16,7 +17,9 @@ urlpatterns = [
     path('set_region_certification/', set_region_certification, name='set_region_certification'),
     path("chat/", views.chat, name="chat"),
     path("chat/<str:room_name>/<str:user_name>/", views.room, name="room"),
-    path('login/', views.login, name='login'),
+    path('login/', views.user_login, name='login'),
+    # path('logout/', auth_views.LogoutView.as_view(next_page='mycarrotapp:main'), name='logout'),
+    path('logout/', views.user_logout, name='logout'),
     path('register/', views.register, name='register'),
     path('search/', views.search, name='search'),
 ]
